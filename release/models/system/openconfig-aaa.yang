@@ -32,8 +32,14 @@ module openconfig-aaa {
     Portions of this model reuse data definitions or structure from
     RFC 7317 - A YANG Data Model for System Management";
 
-  oc-ext:openconfig-version "1.1.0";
+  oc-ext:openconfig-version "1.2.0";
 
+  revision 2026-08-07 {
+      description
+         "Deprecating ssh-key leaf in favour of public-keys list.";
+      reference "1.2.0";
+  }
+  
   revision 2025-10-31 {
       description
           "Added GLOME path.";
@@ -399,7 +405,8 @@ module openconfig-aaa {
       type string;
       status deprecated;
       description
-        "SSH public key for the user (RSA or DSA)";
+        "SSH public key for the user. Deprecated in favour of the 
+        public-keys list, which supports mutiple keys per user.";
     }
 
     leaf role {
@@ -421,22 +428,63 @@ module openconfig-aaa {
     description
       "Operational state data for local users";
   }
-  
-  grouping authorized-ssh-key-config {
+
+  grouping public-key-config {
     description
       "Configuration data for user SSH keys";
-    
+
      leaf name {
        type string;
        description
          "The name with which to reference the authorized SSH public key";
      }
-    
-     leaf authorized-ssh-key {
+
+     leaf public-key {
        type string;
        description
-         "Authorized SSH public key for the user";
+         "An authorized SSH public key for the user, formatted as a single
+         entry of an OpenSSH authorized_keys file:
+
+           [options] <algorithm> <base64-key> [comment]
+           
+         Encoding the full entry as one string preserves any key options
+         and algorithm names not known to the system.";
+
+       reference
+          "OpenSSH sshd(8), AUTHORIZED_KEYS FILE FORMAT";
      }
+  }
+  
+  grouping public-keys {
+    description
+      "SSH keys";
+
+    list public-key {
+      key "name";
+      description
+        "Authorized SSH public keys for the user.";
+
+      leaf name {
+        type leafref {
+          path "../config/name";
+        }
+        description
+          "References the key name in the configuration block";
+      }
+
+      container config {
+        description
+          "Configuration data for the authorized SSH key";
+        uses public-key-config;
+      }
+
+      container state {
+        config false;
+        description
+          "Operational state data for the authorized SSH key";
+        uses public-key-config;
+      }
+    }
   }
 
   grouping aaa-authentication-user-top {
@@ -476,38 +524,8 @@ module openconfig-aaa {
           uses aaa-authentication-user-config;
           uses aaa-authentication-user-state;
         }
-        
-        container authorized-ssh-keys {
-		  description
-			"Top-level container for authorized SSH keys";
-		
-		  list authorized-ssh-key {
-			key "name";
-			description
-			  "Authorized SSH public keys for the user (RSA or ECDSA)";
 
-			leaf name {
-			  type leafref {
-				path "../config/key-name";
-			  }
-			  description
-				"References the key name in the configuration block";
-			}
-		
-			container config {
-			  description
-				"Configuration data for the authorized SSH key";
-			  uses authorized-ssh-key-config;
-			}
-		
-			container state {
-			  config false;
-			  description
-				"Operational state data for the authorized SSH key";
-			  uses authorized-ssh-key-config;
-			}
-		  }
-		}
+        uses public-keys;
       }
 
     }

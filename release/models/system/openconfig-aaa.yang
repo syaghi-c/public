@@ -39,7 +39,7 @@ module openconfig-aaa {
          "Deprecating ssh-key leaf in favour of public-keys list.";
       reference "1.2.0";
   }
-  
+
   revision 2025-10-31 {
       description
           "Added GLOME path.";
@@ -405,7 +405,7 @@ module openconfig-aaa {
       type string;
       status deprecated;
       description
-        "SSH public key for the user. Deprecated in favour of the 
+        "SSH public key for the user. Deprecated in favour of the
         public-keys list, which supports mutiple keys per user.";
     }
 
@@ -446,7 +446,7 @@ module openconfig-aaa {
          entry of an OpenSSH authorized_keys file:
 
            [options] <algorithm> <base64-key> [comment]
-           
+
          Encoding the full entry as one string preserves any key options
          and algorithm names not known to the system.";
 
@@ -454,7 +454,7 @@ module openconfig-aaa {
           "OpenSSH sshd(8), AUTHORIZED_KEYS FILE FORMAT";
      }
   }
-  
+
   grouping public-keys {
     description
       "SSH keys";

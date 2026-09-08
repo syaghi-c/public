@@ -459,30 +459,35 @@ module openconfig-aaa {
     description
       "SSH keys";
 
-    list public-key {
-      key "name";
+    container public-keys {
       description
-        "Authorized SSH public keys for the user.";
+        "Enclosing container for authorized SSH public keys.";
 
-      leaf name {
-        type leafref {
-          path "../config/name";
+      list public-key {
+        key "name";
+        description
+          "Authorized SSH public keys for the user.";
+
+        leaf name {
+          type leafref {
+            path "../config/name";
+          }
+          description
+            "References the key name in the configuration block";
         }
-        description
-          "References the key name in the configuration block";
-      }
 
-      container config {
-        description
-          "Configuration data for the authorized SSH key";
-        uses public-key-config;
-      }
+        container config {
+          description
+            "Configuration data for the authorized SSH key";
+          uses public-key-config;
+        }
 
-      container state {
-        config false;
-        description
-          "Operational state data for the authorized SSH key";
-        uses public-key-config;
+        container state {
+          config false;
+          description
+            "Operational state data for the authorized SSH key";
+          uses public-key-config;
+        }
       }
     }
   }
